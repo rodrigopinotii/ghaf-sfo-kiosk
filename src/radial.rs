@@ -205,8 +205,7 @@ pub fn build<R>(
     // Out-param, not a field on `Fan`: every card must be added to the overlay
     // after ALL fans, and only ui::build knows when that is. Adding them here
     // would put a later fan above an earlier member's card.
-    confirms: &mut Vec<(String, crate::confirm::Confirm)>,
-    settimes: &mut Vec<(String, crate::settime::SetTime)>,
+    pending: &mut crate::ui::PendingCards,
 ) -> Fan
 where
     R: Reporter + Clone,
@@ -286,7 +285,7 @@ where
                 *verdict_port,
                 shared,
             );
-            settimes.push((item.id.clone(), card.clone()));
+            pending.settimes.push((item.id.clone(), card.clone()));
             let trig = trigger.clone();
             button.connect_clicked(move |_| {
                 // Close FIRST: the card must not open behind the fan it was
@@ -306,7 +305,7 @@ where
 
             if let Some(spec_confirm) = &item.confirm {
                 let card = crate::confirm::build(spec_confirm, &item.label, fire);
-                confirms.push((item.id.clone(), card.clone()));
+                pending.confirms.push((item.id.clone(), card.clone()));
                 button.connect_clicked(move |_| {
                     // Close FIRST, for the same reason as below: a card must not
                     // open behind the fan it was pressed in.
